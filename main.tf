@@ -1,20 +1,31 @@
-provider "aws" {
-  version = "~> 2.0"
-  region  = "eu-central-1"
+terraform {
+  backend "s3" {
+    bucket = "gra-tf-state"
+    key    = "terraform-aws-github-action-bootstrap/terraform.tfstate"
+    region = "us-east-1"
+  }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.16"
+    }
+  }
+
+  required_version = ">= 1.2.0"
 }
 
-# terraform {
-#   backend "s3" {
-#     bucket = "example-terraform-project-name-bootstrap-terraform-state"
-#     key    = "default-infrastructure"
-#     region = "eu-central-1"
-#   }
-# }
+provider "aws" {
+  region = "us-east-1"
+}
+
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "example-terraform-project-name-bootstrap-terraform-state"
+  bucket = "gra-tf-state"
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "versioning_terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  versioning_configuration {
+    status = "Enabled"
   }
 }
